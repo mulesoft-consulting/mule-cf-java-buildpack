@@ -21,7 +21,7 @@
 ---
 jre:
   version: 1.8.0_+
-  repository_root: ""
+  repository_root: "https://s3-eu-west-1.amazonaws.com/mule-cf-repo/oracle-jre"
 memory_calculator:
   version: 2.+
   repository_root: ! '{default.repository.root}/memory-calculator/{platform}/{architecture}'
