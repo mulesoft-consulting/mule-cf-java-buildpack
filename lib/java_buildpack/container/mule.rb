@@ -15,6 +15,7 @@
 # limitations under the License.
 
 require 'fileutils'
+require 'java_buildpack/util/qualify_path'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
 require 'java_buildpack/util/tokenized_version'
@@ -33,18 +34,28 @@ module JavaBuildpack
       #
       # @param [Hash] context a collection of utilities used the component
       def initialize(context)
-        puts "Initialising mule container, component name is: #{@component_name}"
         super(context) { |candidate_version| candidate_version.check_size(3) }
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
-        puts "***** AT COMPILE: before downloading #{@version} from #{@uri}"
         download(@version, @uri) { |file| expand file }
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
+        @droplet.environment_variables.add_environment_variable 'MULE_HOME', "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}"
+        @droplet.environment_variables.add_environment_variable 'PATH', "$JAVA_HOME/bin:$PATH"
+        @droplet.java_opts.add_system_property 'http.port', '$PORT'
+                
+        [
+            @droplet.java_home.as_env_var,
+            @droplet.environment_variables.as_env_vars,
+            @droplet.java_opts.as_env_var,
+            "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/gateway",
+            "-M-Danypoint.platform.client_id=$ANYPOINT_PLATFORM_CLIENT_ID",
+            "-M-Danypoint.platform.client_secret=$ANYPOINT_PLATFORM_CLIENT_SECRET"
+         ].flatten.compact.join(' ')
       end
 
       protected
@@ -68,7 +79,6 @@ module JavaBuildpack
       end
       
       def install_license
-        puts "Installing license -- XXXX TO DO XXXX"
         
       end
       
@@ -79,55 +89,10 @@ module JavaBuildpack
           FileUtils.mkdir_p(target) unless File.exists? target
           Dir.glob("#{source}/**/*").reject{|f| f['.java-buildpack']}.each do |oldfile|
             newfile = target + oldfile.sub(source, '')
-            File.file?(oldfile) ? FileUtils.copy(oldfile, newfile) : FileUtils.mkdir(newfile)
+            File.file?(oldfile) ? FileUtils.copy(oldfile, newfile) : FileUtils.mkdir(newfile) unless File.exists? newfile
           end
         end
       end
-      
-      # (see JavaBuildpack::Component::BaseComponent#release)
-#      def release
-##        @droplet.additional_libraries.insert 0, @application.root
-##        manifest_class_path.each { |path| @droplet.additional_libraries << path }
-##        @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT' if boot_launcher?
-#
-#        release_text
-#      end
-
-#      private
-#
-#      ARGUMENTS_PROPERTY = 'arguments'.freeze
-#
-#      CLASS_PATH_PROPERTY = 'Class-Path'.freeze
-#
-#      private_constant :ARGUMENTS_PROPERTY, :CLASS_PATH_PROPERTY
-#
-#      def release_text
-#        [
-#          @droplet.environment_variables.as_env_vars,
-#          "#{qualify_path @droplet.java_home.root, @droplet.root}/bin/java",
-#          @droplet.additional_libraries.as_classpath,
-#          @droplet.java_opts.join(' '),
-#          main_class,
-#          arguments
-#        ].flatten.compact.join(' ')
-#      end
-#
-#      def arguments
-#        @configuration[ARGUMENTS_PROPERTY]
-#      end
-#
-#      def boot_launcher?
-#        main_class =~ /^org\.springframework\.boot\.loader\.(?:[JW]ar|Properties)Launcher$/
-#      end
-#
-#      def main_class
-#        JavaBuildpack::Util::JavaMainUtils.main_class(@application, @configuration)
-#      end
-#
-#      def manifest_class_path
-#        values = JavaBuildpack::Util::JavaMainUtils.manifest(@application)[CLASS_PATH_PROPERTY]
-#        values.nil? ? [] : values.split(' ').map { |value| @droplet.root + value }
-#      end
 
     end
 
