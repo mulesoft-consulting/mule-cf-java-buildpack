@@ -54,7 +54,8 @@ module JavaBuildpack
             @droplet.java_opts.as_env_var,
             "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/gateway",
             "-M-Danypoint.platform.client_id=$ANYPOINT_PLATFORM_CLIENT_ID",
-            "-M-Danypoint.platform.client_secret=$ANYPOINT_PLATFORM_CLIENT_SECRET"
+            "-M-Danypoint.platform.client_secret=$ANYPOINT_PLATFORM_CLIENT_SECRET",
+            "-M-Dhttp.port=$PORT"
          ].flatten.compact.join(' ')
       end
 
@@ -70,7 +71,7 @@ module JavaBuildpack
         with_timing "Expanding Runtime to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
           FileUtils.mkdir_p @droplet.sandbox
           shell "tar xzf #{file.path} -C #{@droplet.sandbox} --strip 1 2>&1"
-          
+          shell "sed -i #{@droplet.sandbox}/domains/api-gateway/mule-domain-config.xml -e 's/port=\"8081\"/port=\"${http.port}\"/'"
           install_license
           
           deploy_app
