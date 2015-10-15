@@ -15,4 +15,5 @@
 
 # Configuration for the Mule container
 ---
+version: 2.1.+
 repository_root: "https://s3-eu-west-1.amazonaws.com/mule-cf-repo/api-gateway"
