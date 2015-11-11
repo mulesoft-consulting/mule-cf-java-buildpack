@@ -55,6 +55,8 @@ module JavaBuildpack
             "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/gateway",
             "-M-Danypoint.platform.client_id=$ANYPOINT_PLATFORM_CLIENT_ID",
             "-M-Danypoint.platform.client_secret=$ANYPOINT_PLATFORM_CLIENT_SECRET",
+            "-M-Danypoint.platform.platform_base_uri=$ANYPOINT_PLATFORM_BASE_URI",
+            "-M-Danypoint.platform.coreservice_base_uri=$ANYPOINT_PLATFORM_CORESERVICE_BASE_URI",
             "-M-Dhttp.port=$PORT"
          ].flatten.compact.join(' ')
       end
