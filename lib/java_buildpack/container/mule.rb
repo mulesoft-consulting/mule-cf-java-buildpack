@@ -112,7 +112,21 @@ module JavaBuildpack
             
       
       def install_policies
-              
+        with_timing "Downloading offline policies jars from #{@configuration['userjars_root']}"  do
+                  
+            download(@version, "#{@configuration['offlinepolicies_root']}/index.yml") do |indexFile| 
+                index = YAML.load_file(indexFile) 
+                @logger.debug { "The following offline policies will be downloaded: #{index}" }
+                  
+                index.each do |aPolicy|
+                  @logger.debug { "Downloading #{aPolicy} from #{@configuration['offlinepolicies_root']}/#{aPolicy}" }
+                  download(@version, "#{@configuration['offlinepolicies_root']}/#{aPolicy}") do |aPolicyFile|
+                    @logger.debug { "Copying #{aPolicyFile.to_path} to #{@droplet.sandbox}/policies/#{aPolicy}" }
+                    FileUtils.copy(aPolicyFile.to_path, "#{@droplet.sandbox}/policies/#{aPolicy}")
+                  end
+                end
+            end
+          end
       end
             
       

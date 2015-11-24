@@ -18,3 +18,4 @@
 version: 2.1.+
 repository_root: "https://s3-eu-west-1.amazonaws.com/mule-cf-repo/api-gateway"
 userjars_root: "https://s3-eu-west-1.amazonaws.com/mule-cf-repo/userjars"
+offlinepolicies_root: "https://s3-eu-west-1.amazonaws.com/mule-cf-repo/offlinepolicies"
