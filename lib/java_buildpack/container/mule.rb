@@ -15,6 +15,7 @@
 # limitations under the License.
 
 require 'fileutils'
+require 'yaml'
 require 'java_buildpack/util/qualify_path'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
@@ -35,6 +36,7 @@ module JavaBuildpack
       # @param [Hash] context a collection of utilities used the component
       def initialize(context)
         super(context) { |candidate_version| candidate_version.check_size(3) }
+        @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger Mule
       end
 
       # (see JavaBuildpack::Component::BaseComponent#compile)
@@ -74,9 +76,13 @@ module JavaBuildpack
           FileUtils.mkdir_p @droplet.sandbox
           shell "tar xzf #{file.path} -C #{@droplet.sandbox} --strip 1 2>&1"
           shell "sed -i #{@droplet.sandbox}/domains/api-gateway/mule-domain-config.xml -e 's/port=\"8081\"/port=\"${http.port}\"/'"
-          install_license
           
+          install_license
+          install_libs
+          install_policies
           deploy_app
+          
+          
           
         end
       end
@@ -84,6 +90,31 @@ module JavaBuildpack
       def install_license
         
       end
+      
+      
+      def install_libs
+        with_timing "Downloading user-provided jars from #{@configuration['userjars_root']}"  do
+          
+          download(@version, "#{@configuration['userjars_root']}/index.yml") do |indexFile| 
+              index = YAML.load_file(indexFile) 
+              @logger.debug { "The following jars will be downloaded: #{index}" }
+                
+              index.each do |aJar|
+                @logger.debug { "Downloading #{aJar} from #{@configuration['userjars_root']}/#{aJar}" }
+                download(@version, "#{@configuration['userjars_root']}/#{aJar}") do |aJarFile|
+                  @logger.debug { "Copying #{aJarFile.to_path} to #{@droplet.sandbox}/lib/user/#{aJar}" }
+                  FileUtils.copy(aJarFile.to_path, "#{@droplet.sandbox}/lib/user/#{aJar}")
+                end
+              end
+          end
+        end
+      end
+            
+      
+      def install_policies
+              
+      end
+            
       
       def deploy_app
         target = "#{@droplet.sandbox}/apps/app"
