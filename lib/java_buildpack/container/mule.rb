@@ -116,10 +116,10 @@ module JavaBuildpack
             
       
       def install_policies
-        if (@configuration['userjars_root'].nil? || @configuration['userjars_root'].empty?)
+        if (@configuration['offlinepolicies_root'].nil? || @configuration['offlinepolicies_root'].empty?)
           @logger.info { "Offline policies repository not specified (offlinepolicies_root), not downloading offline policies."}
         else 
-          with_timing "Downloading offline policies jars from #{@configuration['userjars_root']}"  do
+          with_timing "Downloading offline policies from #{@configuration['offlinepolicies_root']}"  do
                     
               download(@version, "#{@configuration['offlinepolicies_root']}/index.yml") do |indexFile| 
                   index = YAML.load_file(indexFile) 

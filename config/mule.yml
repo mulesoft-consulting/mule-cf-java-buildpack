@@ -17,11 +17,5 @@
 ---
 version: 2.1.+
 repository_root: "https://s3-eu-west-1.amazonaws.com/mule-cf-repo/api-gateway"
-
-# Uncomment to force download of user libraries
-#
-userjars_root: "https://s3-eu-west-1.amazonaws.com/mule-cf-repo/userjars"
-
-# Uncomment to force download of offline policies
-#
-offlinepolicies_root: "https://s3-eu-west-1.amazonaws.com/mule-cf-repo/offlinepolicies"
+userjars_root: ""
+offlinepolicies_root: ""
