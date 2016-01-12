@@ -60,7 +60,8 @@ module JavaBuildpack
             "-M-Danypoint.platform.platform_base_uri=$ANYPOINT_PLATFORM_BASE_URI",
             "-M-Danypoint.platform.coreservice_base_uri=$ANYPOINT_PLATFORM_CORESERVICE_BASE_URI",
             "-M-Dmule.testingMode=true",
-            "-M-Dhttp.port=$PORT"
+            "-M-Dhttp.port=$PORT",
+            "start"
          ].flatten.compact.join(' ')
       end
 
