@@ -76,8 +76,14 @@ module JavaBuildpack
       def expand(file)
         with_timing "Expanding Runtime to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
           FileUtils.mkdir_p @droplet.sandbox
-          shell "tar xzf #{file.path} -C #{@droplet.sandbox} --strip 1 2>&1"
           
+          if file.path.end_with(".tar.gz")
+
+            shell "tar xzf #{file.path} -C #{@droplet.sandbox} --strip 1 2>&1"
+          
+          else 
+            shell "unzip #{file.path} -d #{@droplet.sandbox} 2>&1"
+          end
           #for api gateway, this is not necessary for mule runtimes
           #shell "sed -i #{@droplet.sandbox}/domains/api-gateway/mule-domain-config.xml -e 's/port=\"8081\"/port=\"${http.port}\"/'"
           
