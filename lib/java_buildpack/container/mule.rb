@@ -77,7 +77,7 @@ module JavaBuildpack
         with_timing "Expanding Runtime to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
           FileUtils.mkdir_p @droplet.sandbox
           
-          if file.path.end_with(".tar.gz")
+          if file.path.end_with?(".tar.gz")
 
             shell "tar xzf #{file.path} -C #{@droplet.sandbox} --strip 1 2>&1"
           
