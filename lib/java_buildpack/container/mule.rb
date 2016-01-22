@@ -54,7 +54,7 @@ module JavaBuildpack
             @droplet.java_home.as_env_var,
             @droplet.environment_variables.as_env_vars,
             @droplet.java_opts.as_env_var,
-            "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/gateway",
+            "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/mule",
             "-M-Danypoint.platform.client_id=$ANYPOINT_PLATFORM_CLIENT_ID",
             "-M-Danypoint.platform.client_secret=$ANYPOINT_PLATFORM_CLIENT_SECRET",
             "-M-Danypoint.platform.platform_base_uri=$ANYPOINT_PLATFORM_BASE_URI",
@@ -77,68 +77,19 @@ module JavaBuildpack
         with_timing "Expanding Runtime to #{@droplet.sandbox.relative_path_from(@droplet.root)}" do
           FileUtils.mkdir_p @droplet.sandbox
           shell "tar xzf #{file.path} -C #{@droplet.sandbox} --strip 1 2>&1"
-          shell "sed -i #{@droplet.sandbox}/domains/api-gateway/mule-domain-config.xml -e 's/port=\"8081\"/port=\"${http.port}\"/'"
           
-          install_license
-          install_libs
-          install_policies
+          #for api gateway, this is not necessary for mule runtimes
+          #shell "sed -i #{@droplet.sandbox}/domains/api-gateway/mule-domain-config.xml -e 's/port=\"8081\"/port=\"${http.port}\"/'"
+          
+          #configure the memory in wrapper.conf
+          shell "sed -i #{@droplet.sandbox}/domains/api-gateway/mule-domain-config.xml -e 's/initmemory=1024/initmemory=#{MEMORY}/'"
+          shell "sed -i #{@droplet.sandbox}/domains/api-gateway/mule-domain-config.xml -e 's/maxmemory=1024/maxmemory=#{MEMORY}/'"
+
           deploy_app
           
-          
-          
         end
       end
-      
-      def install_license
-        
-      end
-      
-      
-      def install_libs
-        if (@configuration['userjars_root'].nil? || @configuration['userjars_root'].empty?)
-          @logger.info { "User libraries repository not specified (userjars_root), not downloading user libraries."}
-        else 
-          with_timing "Downloading user-provided jars from #{@configuration['userjars_root']}"  do
-          
-              download(@version, "#{@configuration['userjars_root']}/index.yml") do |indexFile| 
-                  index = YAML.load_file(indexFile) 
-                  @logger.debug { "The following jars will be downloaded: #{index}" }
-                    
-                  index.each do |aJar|
-                    @logger.debug { "Downloading #{aJar} from #{@configuration['userjars_root']}/#{aJar}" }
-                    download(@version, "#{@configuration['userjars_root']}/#{aJar}") do |aJarFile|
-                      @logger.debug { "Copying #{aJarFile.to_path} to #{@droplet.sandbox}/lib/user/#{aJar}" }
-                      FileUtils.copy(aJarFile.to_path, "#{@droplet.sandbox}/lib/user/#{aJar}")
-                    end
-                  end
-              end
-          end
-        end
-      end
-            
-      
-      def install_policies
-        if (@configuration['offlinepolicies_root'].nil? || @configuration['offlinepolicies_root'].empty?)
-          @logger.info { "Offline policies repository not specified (offlinepolicies_root), not downloading offline policies."}
-        else 
-          with_timing "Downloading offline policies from #{@configuration['offlinepolicies_root']}"  do
-                    
-              download(@version, "#{@configuration['offlinepolicies_root']}/index.yml") do |indexFile| 
-                  index = YAML.load_file(indexFile) 
-                  @logger.debug { "The following offline policies will be downloaded: #{index}" }
-                    
-                  index.each do |aPolicy|
-                    @logger.debug { "Downloading #{aPolicy} from #{@configuration['offlinepolicies_root']}/#{aPolicy}" }
-                    download(@version, "#{@configuration['offlinepolicies_root']}/#{aPolicy}") do |aPolicyFile|
-                      @logger.debug { "Copying #{aPolicyFile.to_path} to #{@droplet.sandbox}/policies/#{aPolicy}" }
-                      FileUtils.copy(aPolicyFile.to_path, "#{@droplet.sandbox}/policies/#{aPolicy}")
-                    end
-                  end
-              end
-            end
-        end
-      end
-            
+                  
       
       def deploy_app
         target = "#{@droplet.sandbox}/apps/app"

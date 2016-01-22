@@ -15,7 +15,7 @@
 
 # Configuration for the Mule container
 ---
-version: 2.1.+
-repository_root: "https://s3-eu-west-1.amazonaws.com/mule-cf-repo/api-gateway"
+version: 3.7.+
+repository_root: "https://cf-runtimes-repo.s3.amazonaws.com/mule-enterprise"
 userjars_root: ""
 offlinepolicies_root: ""
