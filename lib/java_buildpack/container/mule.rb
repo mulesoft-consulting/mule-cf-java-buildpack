@@ -82,7 +82,9 @@ module JavaBuildpack
             shell "tar xzf #{file.path} -C #{@droplet.sandbox} --strip 1 2>&1"
           
           else 
+            @logger.info { "About to unzip runtime #{file.path}..." }
             shell "unzip #{file.path} -d #{@droplet.sandbox}"
+            @logger.info { "Unzipped runtime" }
           end
           #for api gateway, this is not necessary for mule runtimes
           #shell "sed -i #{@droplet.sandbox}/domains/api-gateway/mule-domain-config.xml -e 's/port=\"8081\"/port=\"${http.port}\"/'"
