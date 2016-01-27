@@ -59,7 +59,6 @@ module JavaBuildpack
             "-M-Danypoint.platform.client_secret=$ANYPOINT_PLATFORM_CLIENT_SECRET",
             "-M-Danypoint.platform.platform_base_uri=$ANYPOINT_PLATFORM_BASE_URI",
             "-M-Danypoint.platform.coreservice_base_uri=$ANYPOINT_PLATFORM_CORESERVICE_BASE_URI",
-            "",
             "-M-Dmule.testingMode=true",
             "-M-Dmule.agent.enabled=false",
             "-M-Dhttp.port=$PORT"
@@ -106,8 +105,11 @@ module JavaBuildpack
       end
 
       def configure_memory
-          shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/initmemory=1024/initmemory=#{MEMORY_LIMIT}/'"
-          shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/maxmemory=1024/maxmemory=#{MEMORY_LIMIT}/'"        
+          
+          mem = ENV['MEMORY_LIMIT']
+
+          shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/initmemory=1024/initmemory=#{mem}/'"
+          shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/maxmemory=1024/maxmemory=#{mem}/'"        
       end
 
 
