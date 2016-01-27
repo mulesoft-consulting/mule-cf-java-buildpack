@@ -75,12 +75,9 @@ module JavaBuildpack
           
           #for api gateway, this is not necessary for mule runtimes
           #shell "sed -i #{@droplet.sandbox}/domains/api-gateway/mule-domain-config.xml -e 's/port=\"8081\"/port=\"${http.port}\"/'"
-          
-          #configure the memory in wrapper.conf
-          #shell "sed -i #{@droplet.sandbox}/domains/api-gateway/mule-domain-config.xml -e 's/initmemory=1024/initmemory=#{MEMORY}/'"
-          #shell "sed -i #{@droplet.sandbox}/domains/api-gateway/mule-domain-config.xml -e 's/maxmemory=1024/maxmemory=#{MEMORY}/'"
 
           deploy_app
+
           configure_memory
 
         end
@@ -103,8 +100,10 @@ module JavaBuildpack
           
           mem = ENV['MEMORY_LIMIT']
 
-          shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/initmemory=1024/initmemory=#{mem}/'"
-          shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/maxmemory=1024/maxmemory=#{mem}/'"        
+          @logger.info { "Environment set memory is: #{mem}" }
+
+          #shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/initmemory=1024/initmemory=#{mem}/'"
+          #shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/maxmemory=1024/maxmemory=#{mem}/'"        
       end
 
 
