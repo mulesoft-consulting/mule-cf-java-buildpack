@@ -67,7 +67,7 @@ export PORT=8080
 export TMPDIR=$TEMP_DIR
 
 #run the detect phase
-$BP_DIR/bin/detect $APP_DIR $TMP_DIR
+$BP_DIR/bin/detect $APP_DIR $TEMP_DIR
 
 if [ $? != 0 ]
 then
@@ -77,7 +77,7 @@ fi
 
 
 #run the compile phase
-$BP_DIR/bin/compile $APP_DIR $TMP_DIR
+$BP_DIR/bin/compile $APP_DIR $TEMP_DIR
 
 if [ $? != 0 ]
 then
