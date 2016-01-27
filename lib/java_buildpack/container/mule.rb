@@ -98,12 +98,12 @@ module JavaBuildpack
 
       def configure_memory
           
-          mem = ENV['MEMORY_LIMIT']
+          mem = ENV['MEMORY_LIMIT'].chomp("m").to_i / 2
 
           @logger.info { "Environment set memory is: #{mem}" }
 
-          #shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/initmemory=1024/initmemory=#{mem}/'"
-          #shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/maxmemory=1024/maxmemory=#{mem}/'"        
+          shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/initmemory=1024/initmemory=#{mem}/'"
+          shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/maxmemory=1024/maxmemory=#{mem}/'"        
       end
 
 
