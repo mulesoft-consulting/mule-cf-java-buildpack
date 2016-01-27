@@ -55,11 +55,6 @@ module JavaBuildpack
             @droplet.environment_variables.as_env_vars,
             @droplet.java_opts.as_env_var,
             "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/mule",
-            "-M-Danypoint.platform.client_id=$ANYPOINT_PLATFORM_CLIENT_ID",
-            "-M-Danypoint.platform.client_secret=$ANYPOINT_PLATFORM_CLIENT_SECRET",
-            "-M-Danypoint.platform.platform_base_uri=$ANYPOINT_PLATFORM_BASE_URI",
-            "-M-Danypoint.platform.coreservice_base_uri=$ANYPOINT_PLATFORM_CORESERVICE_BASE_URI",
-            "-M-Dmule.testingMode=true",
             "-M-Dmule.agent.enabled=false",
             "-M-Dhttp.port=$PORT"
          ].flatten.compact.join(' ')

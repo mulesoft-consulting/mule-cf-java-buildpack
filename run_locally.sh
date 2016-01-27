@@ -2,6 +2,7 @@
 
 BP_DIR=$(pwd)
 APP=$1       
+CLEAR=$2
 
 #if there is no an app argument, exit
 if [ -z $APP ]                       
@@ -33,9 +34,12 @@ if [ ! -d $TEMP_DIR ]
 then                      
         echo "Creating build pack temp dir: $TEMP_DIR"
         mkdir -p $TEMP_DIR                            
-else                                                  
+elif [ ! -z $CLEAR ]
+then
         echo "Cleaning up temp dir..."                
         rm -rf $TEMP_DIR/*                            
+else
+        echo "Not cleaning up the temp dir..."
 fi                                                    
 
 if [ ! -d $APP_DIR ]
@@ -87,4 +91,4 @@ fi
 
 #finally run the release phase
 
-$BP_DIR/bin/release $APP_DIR | ruby -e "require \"yaml\"; puts YAML.load(STDIN.read)[\"default_process_types\"][\"web\"]"
+$BP_DIR/bin/release $APP_DIR | ruby -e "require \"yaml\"; print YAML.load(STDIN.read)[\"default_process_types\"][\"web\"]"
