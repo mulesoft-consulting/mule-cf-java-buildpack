@@ -138,6 +138,8 @@ module JavaBuildpack
         @logger.info { "AppName: #{@application.details['application_name']} Registration Hash: #{reghash}" }
 
         shell [
+            @droplet.java_home.as_env_var,
+            "PATH=$JAVA_HOME/bin:$PATH",
             "#{@droplet.sandbox}/bin/amc_setup",
             reghash,
             @application.details['application_name']
