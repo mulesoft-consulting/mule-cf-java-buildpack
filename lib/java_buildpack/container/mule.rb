@@ -121,7 +121,7 @@ module JavaBuildpack
         anypointPlatformHost = ENV['ANYPOINT_ARM_HOST']
         
         if anypointPlatformHost.nil? || anypointPlatformHost.empty?
-          logger.info {"Anypoint settings not found. Not registeing into ARM."}
+          @logger.info {"Anypoint settings not found. Not registeing into ARM."}
           return
         end
 
@@ -129,7 +129,7 @@ module JavaBuildpack
         anypointPlatformPassword = ENV['ANYPOINT_PASSWORD']
         environmentName = ENV['ANYPOINT_ENVIRONMENT']
 
-        logger.info { "Connection details: \n\t Host: #{anypointPlatformHost} \n\t User: #{anypointPlatformUser} \n\t Environment: #{environmentName}\n\t" }
+        @logger.info { "Connection details: \n\t Host: #{anypointPlatformHost} \n\t User: #{anypointPlatformUser} \n\t Environment: #{environmentName}\n\t" }
 
       end
 
