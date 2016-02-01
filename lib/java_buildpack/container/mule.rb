@@ -61,9 +61,12 @@ module JavaBuildpack
             @droplet.environment_variables.as_env_vars,
             @droplet.java_opts.as_env_var,
             "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/amc_setup",
+            "-H",
             reghash,
             @application.details['application_name'],
             "&&",
+            @droplet.java_home.as_env_var,
+            @droplet.environment_variables.as_env_vars,
             "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/mule",
             "-M-Dmule.agent.enabled=false",
             "-M-Dhttp.port=$PORT"
