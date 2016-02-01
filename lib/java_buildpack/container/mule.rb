@@ -137,6 +137,9 @@ module JavaBuildpack
 
         @logger.info { "AppName: #{@application.details['application_name']} Registration Hash: #{reghash}" }
 
+        shell "export #{@droplet.java_home.as_env_var}"
+        shell "export PATH=$JAVA_HOME/bin:$PATH"
+
         shell [
             @droplet.java_home.as_env_var,
             "PATH=$JAVA_HOME/bin:$PATH",
