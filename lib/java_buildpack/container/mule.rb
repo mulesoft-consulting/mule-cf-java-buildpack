@@ -49,14 +49,21 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
+        
+        reghash = get_platform_token
+
         @droplet.environment_variables.add_environment_variable 'MULE_HOME', "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}"
         @droplet.environment_variables.add_environment_variable 'PATH', "$JAVA_HOME/bin:$PATH"
         @droplet.java_opts.add_system_property 'http.port', '$PORT'
-                
+  
         [
             @droplet.java_home.as_env_var,
             @droplet.environment_variables.as_env_vars,
             @droplet.java_opts.as_env_var,
+            "#{@droplet.sandbox}/bin/amc_setup",
+            reghash,
+            @application.details['application_name'],
+            "&&",
             "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/mule",
             "-M-Dmule.agent.enabled=false",
             "-M-Dhttp.port=$PORT"
@@ -82,9 +89,6 @@ module JavaBuildpack
           deploy_app
 
           configure_memory
-
-          connect_to_platform
-
         end
       end
                   
@@ -115,7 +119,7 @@ module JavaBuildpack
           shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/maxmemory=1024/maxmemory=#{mem}/'"        
       end
 
-      def connect_to_platform
+      def get_platform_token
 
         #we may optionally want to register this container within the anypoint platform
         anypointPlatformHost = ENV['ANYPOINT_ARM_HOST']
@@ -137,17 +141,7 @@ module JavaBuildpack
 
         @logger.info { "AppName: #{@application.details['application_name']} Registration Hash: #{reghash}" }
 
-        shell "export #{@droplet.java_home.as_env_var}"
-        shell "export PATH=$JAVA_HOME/bin:$PATH"
-
-        shell [
-            @droplet.java_home.as_env_var,
-            "PATH=$JAVA_HOME/bin:$PATH",
-            "#{@droplet.sandbox}/bin/amc_setup",
-            reghash,
-            @application.details['application_name']
-         ].flatten.compact.join(' ')
-
+        return reghash
       end
 
     end
