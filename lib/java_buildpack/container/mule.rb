@@ -138,7 +138,7 @@ module JavaBuildpack
         @logger.info { "AppName: #{@application.details['application_name']} Registration Hash: #{reghash}" }
 
         shell [
-            "#{@droplet.root}/bin/amc_setup.sh",
+            "#{@droplet.sandbox}/bin/amc_setup",
             reghash,
             @application.details['application_name']
          ].flatten.compact.join(' ')
