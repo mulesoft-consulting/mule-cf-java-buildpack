@@ -16,6 +16,9 @@
 
 require 'fileutils'
 require 'yaml'
+require 'json'
+require 'net/http'
+require 'uri'
 require 'java_buildpack/util/qualify_path'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
@@ -80,6 +83,8 @@ module JavaBuildpack
 
           configure_memory
 
+          connect_to_platform
+
         end
       end
                   
@@ -98,6 +103,10 @@ module JavaBuildpack
 
       def configure_memory
           
+          #I have verified that memory limit variable ALWAYS is expressed in megabytes eg: 512m
+          #fortunately this is what our wrapper.conf process requires.
+          # we follow the same practice as cloudhub to have half of the container's memmory reserved for the heap.
+
           mem = ENV['MEMORY_LIMIT'].chomp("m").to_i / 2
 
           @logger.info { "Environment set memory is: #{mem}" }
@@ -106,6 +115,23 @@ module JavaBuildpack
           shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/maxmemory=1024/maxmemory=#{mem}/'"        
       end
 
+      def connect_to_platform
+
+        #we may optionally want to register this container within the anypoint platform
+        anypointPlatformHost = ENV['ANYPOINT_ARM_HOST']
+        
+        if !anypointPlatformHost
+          logger.info {"Anypoint settings not found. Not registeing into ARM."}
+          return
+        end
+
+        anypointPlatformUser = ENV['ANYPOINT_USERNAME']
+        anypointPlatformPassword = ENV['ANYPOINT_PASSWORD']
+        environmentName = ENV['ANYPOINT_ENVIRONMENT']
+
+        logger.info { "Connection details: \n\t Host: #{anypointPlatformHost} \n\t User: #{anypointPlatformUser} \n\t Environment: #{environmentName}\n\t" }
+
+      end
 
     end
 
