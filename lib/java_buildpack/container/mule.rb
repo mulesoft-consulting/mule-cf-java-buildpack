@@ -120,7 +120,7 @@ module JavaBuildpack
         #we may optionally want to register this container within the anypoint platform
         anypointPlatformHost = ENV['ANYPOINT_ARM_HOST']
         
-        if !anypointPlatformHost
+        if anypointPlatformHost.nil? || anypointPlatformHost.empty?
           logger.info {"Anypoint settings not found. Not registeing into ARM."}
           return
         end
