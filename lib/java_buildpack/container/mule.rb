@@ -60,7 +60,7 @@ module JavaBuildpack
             @droplet.java_home.as_env_var,
             @droplet.environment_variables.as_env_vars,
             @droplet.java_opts.as_env_var,
-            "#{@droplet.sandbox}/bin/amc_setup",
+            "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/amc_setup",
             reghash,
             @application.details['application_name'],
             "&&",
