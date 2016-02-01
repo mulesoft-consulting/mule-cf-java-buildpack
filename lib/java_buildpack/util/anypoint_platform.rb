@@ -16,6 +16,11 @@
 
 require 'java_buildpack/util'
 require 'pathname'
+require 'json'
+require 'net/http'
+require 'net/https'
+require 'uri'
+require 'java_buildpack/logging/logger_factory'
 
 module JavaBuildpack
   module Util
@@ -25,10 +30,106 @@ module JavaBuildpack
 
     	class Connection
 
+    		def initialize(host, user, password, environment)
+	    		@host = host
+	    		@username = user
+	    		@password = password
+	    		@environment = environment
+	    		@logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger AnypointPlatform
+	    		configureHttp
+    		end
     		
+    		def configureHttp
+    			
+    			endpoint = "https://#{@host}"
 
+    			uri = URI.parse(endpoint)
+				
+				@http = Net::HTTP.new(uri.host, uri.port)
+				@http.use_ssl = true
+				@http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    		end
+
+    		#login into the anypoint platform to get an access token so apis may be called
+    		def login
+    			@logger.info { "Getting access token for the anypoint platform: #{@host}" }
+
+    			loginPath = "/accounts/login?username=#{@username}&password=#{@password}"
+
+    			request = Net::HTTP::Post.new(loginPath)
+				response = @http.request(request)
+
+				jsonData = JSON.parse(response.body)
+
+				@logger.debug { "Access token : #{jsonData['access_token']}" }
+
+				@accesstoken = jsonData['access_token']
+    		end
+
+
+    		def get_registration_hash
+
+    			orgId = get_org_id
+    			envId = get_env_id(orgId)
+				
+    			@logger.info { " OrgId: #{orgId} \n EnvId: #{envId}"}
+
+    			userInfoPath = "/hybrid/api/v1/servers/registrationToken"
+
+    			headers = authHeader
+    			headers['X-ANYPNT-ENV-ID'] = envId
+    			headers['X-ANYPNT-ORG-ID'] = orgId
+
+    			request = Net::HTTP::Get.new(userInfoPath, headers)
+    			response = @http.request(request)
+
+    			jsonData = JSON.parse(response.body)
+
+    			return jsonData['data']
+    		end
+
+    		#api call for getting the user's organization id
+    		def get_org_id
+
+    			userInfoPath = "/accounts/api/me"
+
+    			request = Net::HTTP::Get.new(userInfoPath, authHeader)
+
+    			response = @http.request(request)
+
+    			jsonData = JSON.parse(response.body)
+
+    			return jsonData['user']['organization']['id']
+    		end
+
+    		#api call for getting the selected environment id
+    		def get_env_id(orgId)
+
+    			userInfoPath = "/accounts/api/organizations/#{orgId}/environments"
+
+    			request = Net::HTTP::Get.new(userInfoPath, authHeader)
+
+    			response = @http.request(request)
+
+    			jsonData = JSON.parse(response.body)
+
+    			jsonData['data'].each do |env| 
+    				if env['name'].eql? @environment
+    					return env['id']
+    				end
+    			 end
+
+    			return envid
+    		end
+
+    		def authHeader 
+    			return {
+    				"Authorization" => "Bearer #{@accesstoken}"
+    			}
+    		end
 
     	end
+
 
     end
 

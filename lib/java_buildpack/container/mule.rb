@@ -23,7 +23,7 @@ require 'java_buildpack/util/qualify_path'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/container'
 require 'java_buildpack/util/tokenized_version'
-
+require 'java_buildpack/util/anypoint_platform'
 
 module JavaBuildpack
   module Container
@@ -130,6 +130,18 @@ module JavaBuildpack
         environmentName = ENV['ANYPOINT_ENVIRONMENT']
 
         @logger.info { "Connection details: \n\t Host: #{anypointPlatformHost} \n\t User: #{anypointPlatformUser} \n\t Environment: #{environmentName}\n\t" }
+        anypointPlatform = JavaBuildpack::Util::AnypointPlatform::Connection.new(anypointPlatformHost, anypointPlatformUser, anypointPlatformPassword, environmentName)
+
+        anypointPlatform.login 
+        reghash = anypointPlatform.get_registration_hash
+
+        @logger.info { "AppName: #{@application.details['application_name']} Registration Hash: #{reghash}" }
+
+        shell [
+            "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/amc_setup.sh",
+            reghash,
+            @application.details['application_name']
+         ].flatten.compact.join(' ')
 
       end
 

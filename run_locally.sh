@@ -70,6 +70,14 @@ export CF_INSTANCE_PORT=61508
 export PORT=8080
 export TMPDIR=$TEMP_DIR
 
+#variables defined by the manifest
+export ANYPOINT_ARM_HOST=anypoint.mulesoft.com
+export ANYPOINT_USERNAME=
+export ANYPOINT_PASSWORD=
+export ANYPOINT_ENVIRONMENT=
+
+
+
 #run the detect phase
 $BP_DIR/bin/detect $APP_DIR $TEMP_DIR
 
