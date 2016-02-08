@@ -50,21 +50,11 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         
-        reghash = get_platform_token
-
         @droplet.environment_variables.add_environment_variable 'MULE_HOME', "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}"
         @droplet.environment_variables.add_environment_variable 'PATH', "$JAVA_HOME/bin:$PATH"
         @droplet.java_opts.add_system_property 'http.port', '$PORT'
   
         [
-            @droplet.java_home.as_env_var,
-            @droplet.environment_variables.as_env_vars,
-            @droplet.java_opts.as_env_var,
-            "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/amc_setup",
-            "-H",
-            reghash,
-            @application.details['application_name'],
-            "&&",
             @droplet.java_home.as_env_var,
             @droplet.environment_variables.as_env_vars,
             "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/mule",
@@ -90,6 +80,8 @@ module JavaBuildpack
           #shell "sed -i #{@droplet.sandbox}/domains/api-gateway/mule-domain-config.xml -e 's/port=\"8081\"/port=\"${http.port}\"/'"
 
           deploy_app
+
+          register_platform
 
           configure_memory
         end
@@ -120,6 +112,19 @@ module JavaBuildpack
 
           shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/initmemory=1024/initmemory=#{mem}/'"
           shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/maxmemory=1024/maxmemory=#{mem}/'"        
+      end
+
+      def register_platform
+        reghash = get_platform_token
+
+        shell [
+            @droplet.java_home.as_env_var,
+            @droplet.environment_variables.as_env_vars,
+            "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/amc_setup",
+            "-H",
+            reghash,
+            @application.details['application_name']
+          ].flatten.compact.join(' ')
       end
 
       def get_platform_token
