@@ -81,7 +81,7 @@ module JavaBuildpack
 
           deploy_app
 
-          register_platform
+          #register_platform
 
           configure_memory
         end
