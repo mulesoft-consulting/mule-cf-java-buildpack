@@ -125,7 +125,9 @@ module JavaBuildpack
         @logger.info { "JAVA_HOME Exists? " + File.exist?("#{@droplet.java_home.root}/bin/java").to_s }
 
         cmd = [
+            "export",
             "JAVA_HOME=#{@droplet.java_home.root}",
+            "&&",
             "#{@droplet.sandbox}/bin/amc_setup",
             "-H",
             reghash,
