@@ -121,8 +121,8 @@ module JavaBuildpack
           return
         end
 
-        @logger.info { "AMC Setup Script Exists? " + "#{@droplet.sandbox}/bin/amc_setup".exist? }
-        @logger.info { "JAVA_HOME Exists? " + "#{@droplet.java_home.root}/bin/java".exist? }
+        @logger.info { "AMC Setup Script Exists? " + File.exist?("#{@droplet.sandbox}/bin/amc_setup") }
+        @logger.info { "JAVA_HOME Exists? " + File.exist?("#{@droplet.java_home.root}/bin/java") }
 
         cmd = [
             "JAVA_HOME=#{@droplet.java_home.root}",
