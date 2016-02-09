@@ -81,7 +81,7 @@ module JavaBuildpack
 
           deploy_app
 
-          #register_platform
+          register_platform
 
           configure_memory
         end
@@ -117,14 +117,22 @@ module JavaBuildpack
       def register_platform
         reghash = get_platform_token
 
-        shell [
-            @droplet.java_home.as_env_var,
-            @droplet.environment_variables.as_env_vars,
-            "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/amc_setup",
+        if reghash.nil? || reghash.empty?
+          return
+        end
+
+        cmd = [
+            "JAVA_HOME=#{@droplet.java_home.root}",
+            "#{@droplet.sandbox}/bin/amc_setup",
             "-H",
             reghash,
-            @application.details['application_name']
+            "#{@application.details['application_name']}"
           ].flatten.compact.join(' ')
+
+        @logger.info { "Running AMC registration command:\n\t #{cmd}" }
+
+        @logger.info { `#{cmd}` }
+
       end
 
       def get_platform_token
