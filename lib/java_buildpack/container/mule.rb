@@ -76,14 +76,14 @@ module JavaBuildpack
           FileUtils.mkdir_p @droplet.sandbox
           shell "tar xzf #{file.path} -C #{@droplet.sandbox} --strip 1 2>&1"
           
-          #for api gateway, this is not necessary for mule runtimes
-          #shell "sed -i #{@droplet.sandbox}/domains/api-gateway/mule-domain-config.xml -e 's/port=\"8081\"/port=\"${http.port}\"/'"
-
+          #allow self-patching
+          @droplet.copy_resources
+          
           deploy_app
 
           register_platform
 
-          configure_memory
+          #configure_memory
         end
       end
                   
@@ -115,14 +115,31 @@ module JavaBuildpack
       end
 
       def register_platform
+
+        regcmd = ENV['ANYPOINT_REGISTRATION_COMMAND']
+
+
+        #if we find 
+        if !regcmd.nil? && !regcmd.empty?
+
+          @logger.info { "Found existing registration command: \n\t#{regcmd}" }
+
+          shell [
+            "export",
+            "JAVA_HOME=#{@droplet.java_home.root}",
+            "&&",
+            regcmd
+          ].flatten.compact.join(' ')
+
+          return
+        end
+
+
         reghash = get_platform_token
 
         if reghash.nil? || reghash.empty?
           return
         end
-
-        @logger.info { "AMC Setup Script Exists? " + File.exist?("#{@droplet.sandbox}/bin/amc_setup").to_s }
-        @logger.info { "JAVA_HOME Exists? " + File.exist?("#{@droplet.java_home.root}/bin/java").to_s }
 
         cmd = [
             "export",
@@ -158,6 +175,11 @@ module JavaBuildpack
         anypointPlatform = JavaBuildpack::Util::AnypointPlatform::Connection.new(anypointPlatformHost, anypointPlatformUser, anypointPlatformPassword, environmentName)
 
         anypointPlatform.login 
+
+        #try and clean any server name
+        anypointPlatform.remove_server(@application.details['application_name'])
+
+
         reghash = anypointPlatform.get_registration_hash
 
         @logger.info { "AppName: #{@application.details['application_name']} Registration Hash: #{reghash}" }

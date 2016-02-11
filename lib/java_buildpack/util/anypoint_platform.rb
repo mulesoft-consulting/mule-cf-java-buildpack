@@ -88,6 +88,42 @@ module JavaBuildpack
     			return jsonData['data']
     		end
 
+
+            def remove_server(name)
+
+                serversPath = "/hybrid/api/v1/servers"
+
+                orgId = get_org_id
+                envId = get_env_id(orgId)
+                
+                @logger.info { " OrgId: #{orgId} \n EnvId: #{envId}"}
+
+                headers = authHeader
+                headers['X-ANYPNT-ENV-ID'] = envId
+                headers['X-ANYPNT-ORG-ID'] = orgId
+
+                request = Net::HTTP::Get.new(serversPath, headers)
+
+                response = @http.request(request)
+
+                jsonData = JSON.parse(response.body)
+
+                jsonData['data'].each do |srv|
+                    if srv['name'].eql? name
+                        @logger.info { "Found server with name: #{name}, attempting to clear it ..."}
+                        path = "#{serversPath}/#{srv['id']}"
+
+                        request = Net::HTTP::Delete.new(serversPath, headers)
+
+                        response = @http.request(request)
+
+                        if response.code.eql? '204'
+                            @logger.info { "Found and deleted server with name: #{name}" }
+                        end
+                    end
+                end
+            end
+
     		#api call for getting the user's organization id
     		def get_org_id
 
@@ -121,6 +157,7 @@ module JavaBuildpack
 
     			return envid
     		end
+
 
     		def authHeader 
     			return {

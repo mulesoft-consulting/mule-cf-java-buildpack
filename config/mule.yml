@@ -16,6 +16,6 @@
 # Configuration for the Mule container
 ---
 version: 3.7.+
-repository_root: "http://ec2-52-10-127-142.us-west-2.compute.amazonaws.com/runtimes-repo/"
+repository_root: "https://cf-runtimes-repo.s3.amazonaws.com/mule-enterprise/"
 userjars_root: ""
 offlinepolicies_root: ""
