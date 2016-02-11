@@ -118,7 +118,7 @@ module JavaBuildpack
                         @logger.info { "Found server with name: #{name}, attempting to clear it ..."}
                         path = "#{serversPath}/#{srv['id']}"
 
-                        request = Net::HTTP::Delete.new(serversPath, headers)
+                        request = Net::HTTP::Delete.new(path, headers)
 
                         response = @http.request(request)
 
