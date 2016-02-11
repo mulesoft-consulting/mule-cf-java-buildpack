@@ -91,6 +91,8 @@ module JavaBuildpack
 
             def remove_server(name)
 
+                @logger.info { "Attempting to remove server: #{name}..." }
+
                 serversPath = "/hybrid/api/v1/servers"
 
                 orgId = get_org_id
@@ -109,6 +111,9 @@ module JavaBuildpack
                 jsonData = JSON.parse(response.body)
 
                 jsonData['data'].each do |srv|
+                    
+                    @logger.info { "Checking server: #{srv['name']}" }
+
                     if srv['name'].eql? name
                         @logger.info { "Found server with name: #{name}, attempting to clear it ..."}
                         path = "#{serversPath}/#{srv['id']}"
