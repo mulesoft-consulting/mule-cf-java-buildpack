@@ -79,11 +79,14 @@ module JavaBuildpack
           #allow self-patching
           @droplet.copy_resources
           
+          #deploy the application to apps folder
           deploy_app
 
+          #register the runtime in ARM
           register_platform
 
-          #configure_memory
+          #configure the instance memory
+          configure_memory
         end
       end
                   
