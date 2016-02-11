@@ -112,8 +112,6 @@ module JavaBuildpack
 
                 jsonData['data'].each do |srv|
                     
-                    @logger.info { "Checking server: #{srv['name']}" }
-
                     if srv['name'].eql? name
                         @logger.info { "Found server with name: #{name}, attempting to clear it ..."}
                         path = "#{serversPath}/#{srv['id']}"

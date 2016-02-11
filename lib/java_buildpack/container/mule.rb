@@ -144,15 +144,39 @@ module JavaBuildpack
           return
         end
 
-        cmd = [
-            "export",
-            "JAVA_HOME=#{@droplet.java_home.root}",
-            "&&",
-            "#{@droplet.sandbox}/bin/amc_setup",
-            "-H",
-            reghash,
-            "#{@application.details['application_name']}"
-          ].flatten.compact.join(' ')
+        #initialize the variable
+        cmd = ""
+
+        anypointPlatformHost = ENV['ANYPOINT_ARM_HOST']
+        anypointOnPrem = ENV['ANYPOINT_ARM_ONPREM']
+
+        if anypointOnPrem.nil? || anypointOnPrem.empty?
+
+          cmd = [
+              "export",
+              "JAVA_HOME=#{@droplet.java_home.root}",
+              "&&",
+              "#{@droplet.sandbox}/bin/amc_setup",
+              "-H",
+              reghash,
+              "#{@application.details['application_name']}"
+            ].flatten.compact.join(' ')
+          else
+            #this is the command that needs to be used with arm on prem
+            cmd = [
+                "export",
+                "JAVA_HOME=#{@droplet.java_home.root}",
+                "&&",
+                "#{@droplet.sandbox}/bin/amc_setup",
+                "-A http://#{anypointPlatformHost}:8080/hybrid/api/v1",
+                "-W \"wss://#{anypointPlatformHost}:8443/mule\"",
+                "-F https://#{anypointPlatformHost}/apiplatform",
+                "-C https://#{anypointPlatformHost}/accounts",
+                "-H",
+                reghash,
+                "#{@application.details['application_name']}"
+              ].flatten.compact.join(' ')
+          end           
 
         @logger.info { "Running AMC registration command:\n\t #{cmd}" }
 

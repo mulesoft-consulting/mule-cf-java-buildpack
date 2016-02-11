@@ -72,6 +72,7 @@ export TMPDIR=$TEMP_DIR
 
 #variables defined by the manifest
 export ANYPOINT_ARM_HOST=anypoint.mulesoft.com
+export ANYPOINT_ARM_ONPREM=
 export ANYPOINT_USERNAME=
 export ANYPOINT_PASSWORD=
 export ANYPOINT_ENVIRONMENT=
