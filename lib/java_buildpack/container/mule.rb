@@ -58,6 +58,8 @@ module JavaBuildpack
             @droplet.java_home.as_env_var,
             @droplet.environment_variables.as_env_vars,
             "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/mule",
+            "wrapper.java.maxmemory=$((${MEMORY_LIMIT::-1}/2))",
+            "wrapper.java.initmemory=$((${MEMORY_LIMIT::-1}/2))",
             "-M-Dmule.agent.enabled=false",
             "-M-Dhttp.port=$PORT"
          ].flatten.compact.join(' ')
