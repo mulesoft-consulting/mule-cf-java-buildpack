@@ -113,8 +113,8 @@ module JavaBuildpack
 
           @logger.info { "Environment set memory is: #{mem}" }
 
-          shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/initmemory=1024/initmemory=#{mem}/'"
-          shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/maxmemory=1024/maxmemory=#{mem}/'"        
+          shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/wrapper.java.initmemory/\#wrapper.java.initmemory/'"
+          shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/wrapper.java.maxmemory/\#wrapper.java.maxmemory/'"
       end
 
       def register_platform
