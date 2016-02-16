@@ -121,7 +121,7 @@ module JavaBuildpack
 
       def register_platform
 
-        @appName = "#{@application.details['application_name']}-#{@application.details['instance_index']}"
+        @appName = "#{@application.details['application_name']}#{ENV['INSTANCE_INDEX']}"
 
         regcmd = ENV['ANYPOINT_REGISTRATION_COMMAND']
 
@@ -163,7 +163,7 @@ module JavaBuildpack
               "#{@droplet.sandbox}/bin/amc_setup",
               "-H",
               reghash,
-              "#{@application.details['application_name']}"
+              "#{@appName}"
             ].flatten.compact.join(' ')
           else
             #this is the command that needs to be used with arm on prem
