@@ -121,7 +121,7 @@ module JavaBuildpack
 
       def register_platform
 
-        @appName = "#{@application.details['application_name']}#{ENV['INSTANCE_INDEX']}"
+        @appName = "#{@application.details['application_name']}#{ENV['CF_INSTANCE_INDEX']}"
 
         regcmd = ENV['ANYPOINT_REGISTRATION_COMMAND']
 
