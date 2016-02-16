@@ -121,6 +121,8 @@ module JavaBuildpack
 
       def register_platform
 
+        @appName = "#{@application.details['application_name']}-#{@application.details['instance_index']}"
+
         regcmd = ENV['ANYPOINT_REGISTRATION_COMMAND']
 
 
@@ -176,7 +178,7 @@ module JavaBuildpack
                 "-C https://#{anypointPlatformHost}/accounts",
                 "-H",
                 reghash,
-                "#{@application.details['application_name']}"
+                "#{@appName}"
               ].flatten.compact.join(' ')
           end           
 
@@ -203,15 +205,17 @@ module JavaBuildpack
         @logger.info { "Connection details: \n\t Host: #{anypointPlatformHost} \n\t User: #{anypointPlatformUser} \n\t Environment: #{environmentName}\n\t" }
         anypointPlatform = JavaBuildpack::Util::AnypointPlatform::Connection.new(anypointPlatformHost, anypointPlatformUser, anypointPlatformPassword, environmentName)
 
+        
+
         anypointPlatform.login 
 
         #try and clean any server name
-        anypointPlatform.remove_server(@application.details['application_name'])
+        anypointPlatform.remove_server(@appName)
 
 
         reghash = anypointPlatform.get_registration_hash
 
-        @logger.info { "AppName: #{@application.details['application_name']} Registration Hash: #{reghash}" }
+        @logger.info { "AppName: #{@appName} Registration Hash: #{reghash}" }
 
         return reghash
       end
