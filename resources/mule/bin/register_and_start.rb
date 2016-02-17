@@ -125,7 +125,7 @@ puts `#{cmd}`
 
 
 ################### FINALLY RUN THE MULE #####################
-cmd = ["#{SCRIPT_FOLDER}/bin/mule",
+cmd = ["#{SCRIPT_FOLDER}/mule",
     "wrapper.java.maxmemory=$((${MEMORY_LIMIT::-1}/2))",
     "wrapper.java.initmemory=$((${MEMORY_LIMIT::-1}/2))",
     "-M-Dmule.agent.enabled=false",
