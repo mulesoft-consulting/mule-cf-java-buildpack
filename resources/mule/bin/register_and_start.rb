@@ -1,5 +1,6 @@
 require 'json'
 require 'fileutils'
+require 'open3'
 
 #parse the VCAP APPLICATION ENV VAR SO WE HAVE THE INFO WE NEED
 appData = JSON.parse(ENV['VCAP_APPLICATION'])
@@ -14,6 +15,19 @@ JAVA_HOME = ENV['JAVA_HOME']
 ANYPOINT_ON_PREM = ENV['ANYPOINT_ARM_ONPREM']
 
 SCRIPT_FOLDER = File.expand_path(File.dirname(__FILE__))
+
+#utility function
+def shell(*args)
+	Open3.popen3(*args) do |_stdin, stdout, stderr, wait_thr|
+	  if wait_thr.value != 0
+	    puts "\nCommand '#{args.join ' '}' has failed"
+	    puts "STDOUT: #{stdout.gets nil}"
+	    puts "STDERR: #{stderr.gets nil}"
+
+	    fail
+	  end
+	end
+end
 
 def register
 	puts "Logging into the platform..."
@@ -143,8 +157,9 @@ def run
 
 	puts "Running mule..."
 	puts cmd
-	puts `#{cmd}`
+	shell cmd
 end
+
 
 
 if !ANYPOINT.nil?
