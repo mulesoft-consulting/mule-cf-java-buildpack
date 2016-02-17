@@ -125,7 +125,11 @@ puts `#{cmd}`
 
 
 ################### FINALLY RUN THE MULE #####################
-cmd = ["#{SCRIPT_FOLDER}/mule",
+cmd = [
+    "export",
+    "JAVA_HOME=#{JAVA_HOME}",
+    "&&",
+	"#{SCRIPT_FOLDER}/mule",
     "wrapper.java.maxmemory=$((${MEMORY_LIMIT::-1}/2))",
     "wrapper.java.initmemory=$((${MEMORY_LIMIT::-1}/2))",
     "-M-Dmule.agent.enabled=false",
@@ -133,4 +137,5 @@ cmd = ["#{SCRIPT_FOLDER}/mule",
  ].flatten.compact.join(' ')
 
 puts "Running mule..."
+puts cmd
 puts `#{cmd}`
