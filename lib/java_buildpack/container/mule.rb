@@ -58,7 +58,7 @@ module JavaBuildpack
             @droplet.java_home.as_env_var,
             @droplet.environment_variables.as_env_vars,
             "ruby",
-            "register_and_start.rb"
+            "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/register_and_start.rb"
          ].flatten.compact.join(' ')
       end
 
