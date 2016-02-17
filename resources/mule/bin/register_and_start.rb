@@ -22,13 +22,13 @@ def shell(*args)
 		while line = stdout.gets
 	    	puts line
 	  	end
-		# if wait_thr.value != 0
-		#   puts "\nCommand '#{args.join ' '}' has failed"
-		#   puts "STDOUT: #{stdout.gets nil}"
-		#   puts "STDERR: #{stderr.gets nil}"
+		if wait_thr.value != 0
+		  puts "\nCommand '#{args.join ' '}' has failed"
+		  puts "STDOUT: #{stdout.gets nil}"
+		  puts "STDERR: #{stderr.gets nil}"
 
-		#   fail
-		# end
+		  fail
+		end
 	end
 end
 
