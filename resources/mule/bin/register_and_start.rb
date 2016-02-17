@@ -19,13 +19,16 @@ SCRIPT_FOLDER = File.expand_path(File.dirname(__FILE__))
 #utility function
 def shell(*args)
 	Open3.popen3(*args) do |_stdin, stdout, stderr, wait_thr|
-	  if wait_thr.value != 0
-	    puts "\nCommand '#{args.join ' '}' has failed"
-	    puts "STDOUT: #{stdout.gets nil}"
-	    puts "STDERR: #{stderr.gets nil}"
+		while line = stdout.gets
+	    	puts line
+	  	end
+		# if wait_thr.value != 0
+		#   puts "\nCommand '#{args.join ' '}' has failed"
+		#   puts "STDOUT: #{stdout.gets nil}"
+		#   puts "STDERR: #{stderr.gets nil}"
 
-	    fail
-	  end
+		#   fail
+		# end
 	end
 end
 
