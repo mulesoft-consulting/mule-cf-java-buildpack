@@ -57,11 +57,8 @@ module JavaBuildpack
         [
             @droplet.java_home.as_env_var,
             @droplet.environment_variables.as_env_vars,
-            "$PWD/#{@droplet.sandbox.relative_path_from(@droplet.root)}/bin/mule",
-            "wrapper.java.maxmemory=$((${MEMORY_LIMIT::-1}/2))",
-            "wrapper.java.initmemory=$((${MEMORY_LIMIT::-1}/2))",
-            "-M-Dmule.agent.enabled=false",
-            "-M-Dhttp.port=$PORT"
+            "ruby",
+            "register_and_start.rb"
          ].flatten.compact.join(' ')
       end
 
@@ -83,9 +80,6 @@ module JavaBuildpack
           
           #deploy the application to apps folder
           deploy_app
-
-          #register the runtime in ARM
-          register_platform
 
           #configure the instance memory
           configure_memory
@@ -117,107 +111,6 @@ module JavaBuildpack
 
           shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/wrapper.java.initmemory/\#wrapper.java.initmemory/'"
           shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/wrapper.java.maxmemory/\#wrapper.java.maxmemory/'"
-      end
-
-      def register_platform
-
-        @appName = "#{@application.details['application_name']}#{ENV['CF_INSTANCE_INDEX']}"
-
-        regcmd = ENV['ANYPOINT_REGISTRATION_COMMAND']
-
-
-        #if we find 
-        if !regcmd.nil? && !regcmd.empty?
-
-          @logger.info { "Found existing registration command: \n\t#{regcmd}" }
-
-          shell [
-            "export",
-            "JAVA_HOME=#{@droplet.java_home.root}",
-            "&&",
-            regcmd
-          ].flatten.compact.join(' ')
-
-          return
-        end
-
-
-        reghash = get_platform_token
-
-        if reghash.nil? || reghash.empty?
-          return
-        end
-
-        #initialize the variable
-        cmd = ""
-
-        anypointPlatformHost = ENV['ANYPOINT_ARM_HOST']
-        anypointOnPrem = ENV['ANYPOINT_ARM_ONPREM']
-
-        if anypointOnPrem.nil? || anypointOnPrem.empty?
-
-          cmd = [
-              "export",
-              "JAVA_HOME=#{@droplet.java_home.root}",
-              "&&",
-              "#{@droplet.sandbox}/bin/amc_setup",
-              "-H",
-              reghash,
-              "#{@appName}"
-            ].flatten.compact.join(' ')
-          else
-            #this is the command that needs to be used with arm on prem
-            cmd = [
-                "export",
-                "JAVA_HOME=#{@droplet.java_home.root}",
-                "&&",
-                "#{@droplet.sandbox}/bin/amc_setup",
-                "-A http://#{anypointPlatformHost}:8080/hybrid/api/v1",
-                "-W \"wss://#{anypointPlatformHost}:8443/mule\"",
-                "-F https://#{anypointPlatformHost}/apiplatform",
-                "-C https://#{anypointPlatformHost}/accounts",
-                "-H",
-                reghash,
-                "#{@appName}"
-              ].flatten.compact.join(' ')
-          end           
-
-        @logger.info { "Running AMC registration command:\n\t #{cmd}" }
-
-        @logger.info { `#{cmd}` }
-
-      end
-
-      def get_platform_token
-
-        #we may optionally want to register this container within the anypoint platform
-        anypointPlatformHost = ENV['ANYPOINT_ARM_HOST']
-        
-        if anypointPlatformHost.nil? || anypointPlatformHost.empty?
-          @logger.info {"Anypoint settings not found. Not registeing into ARM."}
-          return
-        end
-
-        anypointPlatformUser = ENV['ANYPOINT_USERNAME']
-        anypointPlatformPassword = ENV['ANYPOINT_PASSWORD']
-        environmentName = ENV['ANYPOINT_ENVIRONMENT']
-
-        @logger.info { "Connection details: \n\t Host: #{anypointPlatformHost} \n\t User: #{anypointPlatformUser} \n\t Environment: #{environmentName}\n\t" }
-        anypointPlatform = JavaBuildpack::Util::AnypointPlatform::Connection.new(anypointPlatformHost, anypointPlatformUser, anypointPlatformPassword, environmentName)
-
-        
-
-        anypointPlatform.login 
-
-        #try and clean any server name
-        anypointPlatform.remove_server(@appName)
-
-
-        reghash = anypointPlatform.get_registration_hash
-
-        @logger.info { "AppName: #{@appName} Registration Hash: #{reghash}" }
-
-        return reghash
       end
 
     end
