@@ -155,6 +155,7 @@ def run
 	    "wrapper.java.maxmemory=#{mem}",
 	    "wrapper.java.initmemory=#{mem}",
 	    "-M-Dmule.agent.enabled=false",
+	    "-M-Dmule.tcp.bindlocalhosttoalllocalinterfaces=true",
 	    "-M-Dhttp.port=$PORT"
 	 ].flatten.compact.join(' ')
 
