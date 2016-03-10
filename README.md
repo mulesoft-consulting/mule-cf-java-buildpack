@@ -1,4 +1,4 @@
-# Cloud Foundry Java Buildpack
+# Cloud Foundry Mule Runtime Buildpack
 [![Build Status](https://travis-ci.org/cloudfoundry/java-buildpack.svg?branch=master)](https://travis-ci.org/cloudfoundry/java-buildpack)
 [![Dependency Status](https://gemnasium.com/cloudfoundry/java-buildpack.svg)](https://gemnasium.com/cloudfoundry/java-buildpack)
 [![Code Climate](https://codeclimate.com/repos/5224adaec7f3a3415107004c/badges/bc49f7d7f8dfc47057c8/gpa.svg)](https://codeclimate.com/repos/5224adaec7f3a3415107004c/feed)
@@ -10,19 +10,22 @@ The `java-buildpack` is a [Cloud Foundry][] buildpack for running JVM-based appl
 To use this buildpack specify the URI of the repository when pushing an application to Cloud Foundry:
 
 ```bash
-$ cf push <APP-NAME> -p <ARTIFACT> -b https://github.com/cloudfoundry/java-buildpack.git
+$ cf push <APP-NAME> -p <ARTIFACT> -b https://github.com/mulesoft-consulting/anypoint-buildpack.git
 ```
 
-## Examples
-The following are _very_ simple examples for deploying the artifact types that we support.
+Alternatively specify the buildpack URL in the manifest.yml file, e.g.:
 
-* [Embedded web server](docs/example-embedded-web-server.md)
-* [Grails](docs/example-grails.md)
-* [Groovy](docs/example-groovy.md)
-* [Java Main](docs/example-java_main.md)
-* [Play Framework](docs/example-play_framework.md)
-* [Servlet](docs/example-servlet.md)
-* [Spring Boot CLI](docs/example-spring_boot_cli.md)
+```
+---
+
+applications:
+
+- name: helloworld
+
+  memory: 1g
+
+  buildpack: https://github.com/javaduke/anypoint-buildpack.git
+```
 
 ## Configuration and Extension
 The buildpack supports extension through the use of Git repository forking. The easiest way to accomplish this is to use [GitHub's forking functionality][] to create a copy of this repository.  Make the required extension changes in the copy of the repository. Then specify the URL of the new repository when pushing Cloud Foundry applications. If the modifications are generally applicable to the Cloud Foundry community, please submit a [pull request][] with the changes.
@@ -113,7 +116,7 @@ The online package is a version of the buildpack that is as minimal as possible 
 $ bundle install
 $ bundle exec rake package
 ...
-Creating build/java-buildpack-cfd6b17.zip
+Creating build/mule-buildpack-cfd6b17.zip
 ```
 
 ### Offline Package
@@ -125,7 +128,7 @@ To pin the version of dependencies used by the buildpack to the ones currently r
 $ bundle install
 $ bundle exec rake package OFFLINE=true PINNED=true
 ...
-Creating build/java-buildpack-offline-cfd6b17.zip
+Creating build/mule-buildpack-offline-cfd6b17.zip
 ```
 
 ### Package Versioning
@@ -135,7 +138,7 @@ Keeping track of different versions of the buildpack can be difficult.  To help 
 $ bundle install
 $ bundle exec rake package VERSION=2.1
 ...
-Creating build/java-buildpack-2.1.zip
+Creating build/mule-buildpack-2.1.zip
 ```
 
 ## Running Tests
