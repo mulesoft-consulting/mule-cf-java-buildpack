@@ -13,7 +13,7 @@ To use this buildpack specify the URI of the repository when pushing an applicat
 $ cf push <APP-NAME> -p <ARTIFACT> -b https://github.com/mulesoft-consulting/anypoint-buildpack.git
 ```
 
-Alternatively specify the buildpack URL in the manifest.yml file, e.g.:
+Alternatively specify the buildpack URL in the `manifest.yml` file, e.g.:
 
 ```
 ---
