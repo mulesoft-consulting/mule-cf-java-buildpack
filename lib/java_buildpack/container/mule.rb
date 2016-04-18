@@ -81,8 +81,9 @@ module JavaBuildpack
           #deploy the application to apps folder
           deploy_app
 
-          #configure the instance memory
-          configure_memory
+          #this is NOT the place to configure memory, given that this is
+          #executed only once, and then if app is scaled only the command resulting from 
+          #the release cycle will be executed.
         end
       end
                   
@@ -97,20 +98,6 @@ module JavaBuildpack
             File.file?(oldfile) ? FileUtils.copy(oldfile, newfile) : FileUtils.mkdir(newfile) unless File.exists? newfile
           end
         end
-      end
-
-      def configure_memory
-          
-          #I have verified that memory limit variable ALWAYS is expressed in megabytes eg: 512m
-          #fortunately this is what our wrapper.conf process requires.
-          # we follow the same practice as cloudhub to have half of the container's memmory reserved for the heap.
-
-          mem = ENV['MEMORY_LIMIT'].chomp("m").to_i / 2
-
-          @logger.info { "Environment set memory is: #{mem}" }
-
-          shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/wrapper.java.initmemory/\#wrapper.java.initmemory/'"
-          shell "sed -i #{@droplet.sandbox}/conf/wrapper.conf -e 's/wrapper.java.maxmemory/\#wrapper.java.maxmemory/'"
       end
 
     end
