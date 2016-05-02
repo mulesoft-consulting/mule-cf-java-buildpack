@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,11 +19,13 @@ require 'application_helper'
 require 'console_helper'
 require 'fileutils'
 require 'java_buildpack/logging/logger_factory'
+require 'yaml'
 
 shared_context 'logging_helper' do
   include_context 'console_helper'
   include_context 'application_helper'
 
+  previous_log_config    = ENV['JBP_CONFIG_LOGGING']
   previous_log_level     = ENV['JBP_LOG_LEVEL']
   previous_debug_level   = $DEBUG
   previous_verbose_level = $VERBOSE
@@ -34,6 +36,9 @@ shared_context 'logging_helper' do
     log_level            = example.metadata[:log_level]
     ENV['JBP_LOG_LEVEL'] = log_level if log_level
 
+    enable_log_file           = example.metadata[:enable_log_file]
+    ENV['JBP_CONFIG_LOGGING'] = { 'enable_log_file' => true }.to_yaml if enable_log_file
+
     $DEBUG   = example.metadata[:debug]
     $VERBOSE = example.metadata[:verbose]
 
@@ -43,9 +48,10 @@ shared_context 'logging_helper' do
   after do
     JavaBuildpack::Logging::LoggerFactory.instance.reset
 
-    ENV['JBP_LOG_LEVEL'] = previous_log_level
-    $VERBOSE             = previous_verbose_level
-    $DEBUG               = previous_debug_level
+    ENV['JBP_CONFIG_LOGGING'] = previous_log_config
+    ENV['JBP_LOG_LEVEL']      = previous_log_level
+    $VERBOSE                  = previous_verbose_level
+    $DEBUG                    = previous_debug_level
   end
 
 end

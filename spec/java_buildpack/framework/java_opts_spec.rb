@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -66,35 +66,64 @@ describe JavaBuildpack::Framework::JavaOpts do
 
     it 'adds split java_opts to context' do
       component.release
-
       expect(java_opts).to include('-Xdebug')
       expect(java_opts).to include('-Xnoagent')
-      expect(java_opts).to include('-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y')
+      expect(java_opts).to include('-Xrunjdwp:transport=dt_socket,server\=y,address\=8000,suspend\=y')
       expect(java_opts).to include('-XX:OnOutOfMemoryError=kill\ -9\ \%p')
     end
   end
 
   context do
     let(:configuration) do
-      { 'java_opts' => '-Dtest=!£$%^&*(){}<>[];~`' }
+      { 'java_opts' => '-Dtest=!£%^&*()<>[]{};~`' }
     end
 
     it 'escapes special characters' do
       component.release
-
-      expect(java_opts).to include('-Dtest=\\!\\£\\$\\%\\^\\&\\*\\(\\)\\{\\}\\<\\>\\[\\]\\;\\~\\`')
+      expect(java_opts).to include('-Dtest=\!\£\%\^\&\*\(\)\<\>\[\]\{\}\;\~\`')
     end
   end
 
   context do
     let(:configuration) do
-      { 'java_opts' => '-javaagent:agent.jar=port="\$PORT",host=localhost' }
+      { 'java_opts' => '-Dtest=$DOLLAR\\\SLASH' }
     end
 
-    it 'allows escaped characters' do
+    it 'does not escape the shell variable character from configuration' do
       component.release
+      expect(java_opts).to include('-Dtest=$DOLLAR\SLASH')
+    end
+  end
 
-      expect(java_opts).to include('-javaagent:agent.jar=port=$PORT,host=localhost')
+  context do
+    let(:configuration) { { 'from_environment' => true } }
+    let(:environment) { { 'JAVA_OPTS' => '-Dtest=$dollar\\\slash' } }
+
+    it 'does not escape the shell variable character from environment' do
+      component.release
+      expect(java_opts).to include('-Dtest=$dollar\slash')
+    end
+  end
+
+  context do
+    let(:configuration) do
+      { 'java_opts' => '-Dtest=something.\\\$dollar.\\\\\\\slash' }
+    end
+
+    it 'can escape non-escaped characters ' do
+      component.release
+      expect(java_opts).to include('-Dtest=something.\\$dollar.\\\slash')
+    end
+  end
+
+  context do
+    let(:configuration) do
+      { 'java_opts' => '-javaagent:agent.jar=port=$PORT,host=localhost' }
+    end
+
+    it 'escapes equal signs after the first one' do
+      component.release
+      expect(java_opts).to include('-javaagent:agent.jar=port\\=$PORT,host\\=localhost')
     end
   end
 

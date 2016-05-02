@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ describe JavaBuildpack::Container::TomcatInstance do
   context do
     let(:configuration) { { 'context_path' => '/first-segment/second-segment' } }
 
-    it 'links only the application files and directories to the ROOT webapp',
+    it 'links only the application files and directories to the first-segment#second-segment webapp',
        app_fixture:   'container_tomcat_with_index',
        cache_fixture: 'stub-tomcat.tar.gz' do
 

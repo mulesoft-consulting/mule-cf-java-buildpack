@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 require 'java_buildpack/repository'
 require 'java_buildpack/util/tokenized_version'
+require 'java_buildpack/logging/logger_factory'
 
 module JavaBuildpack
   module Repository
@@ -38,9 +39,7 @@ module JavaBuildpack
         # @return [TokenizedVersion] the resolved version or nil if no matching version is found
         def resolve(candidate_version, versions)
           tokenized_candidate_version = safe_candidate_version candidate_version
-          tokenized_versions          = versions.map do |version|
-            JavaBuildpack::Util::TokenizedVersion.new(version, false)
-          end
+          tokenized_versions          = versions.map { |version| create_token(version) }.compact
 
           version = tokenized_versions
                       .select { |tokenized_version| matches? tokenized_candidate_version, tokenized_version }
@@ -54,6 +53,14 @@ module JavaBuildpack
         TOKENIZED_WILDCARD = JavaBuildpack::Util::TokenizedVersion.new('+').freeze
 
         private_constant :TOKENIZED_WILDCARD
+
+        def create_token(version)
+          JavaBuildpack::Util::TokenizedVersion.new(version, false)
+        rescue StandardError => e
+          logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger VersionResolver
+          logger.warn { "Discarding illegal version #{version}: #{e.message}" }
+          nil
+        end
 
         def safe_candidate_version(candidate_version)
           if candidate_version.nil?

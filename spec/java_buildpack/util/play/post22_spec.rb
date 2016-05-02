@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright (c) 2013 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ describe JavaBuildpack::Util::Play::Post22 do
 
     it 'returns command' do
       expect(play_app.release).to eq("test-var-2 test-var-1 PATH=#{java_home.root}/bin:$PATH #{java_home.as_env_var} " \
-      '$PWD/bin/play-application -Jtest-opt-2 -Jtest-opt-1 -J-Dhttp.port=$PORT')
+      'exec $PWD/bin/play-application -Jtest-opt-2 -Jtest-opt-1 -J-Dhttp.port=$PORT')
     end
 
     context do

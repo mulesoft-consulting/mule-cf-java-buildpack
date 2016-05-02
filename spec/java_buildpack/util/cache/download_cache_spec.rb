@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -168,6 +168,18 @@ describe JavaBuildpack::Util::Cache::DownloadCache do
     touch immutable_cache_root, 'cached', 'old-foo-cached'
 
     expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cached/)
+  end
+
+  it 'ignores incorrect size when encoded' do
+    stub_request(:get, uri)
+      .to_return(status: 200, body: 'foo-cac', headers: { Etag:              'foo-etag',
+                                                          'Content-Encoding' => 'gzip',
+                                                          'Last-Modified'    => 'foo-last-modified',
+                                                          'Content-Length'   => 10 })
+
+    touch immutable_cache_root, 'cached', 'old-foo-cached'
+
+    expect { |b| download_cache.get uri, &b }.to yield_file_with_content(/foo-cac/)
   end
 
   context do

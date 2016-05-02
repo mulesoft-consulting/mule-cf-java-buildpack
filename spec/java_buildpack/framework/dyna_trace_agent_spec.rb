@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2015 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,10 @@ require 'java_buildpack/framework/dyna_trace_agent'
 
 describe JavaBuildpack::Framework::DynaTraceAgent do
   include_context 'component_helper'
+
+  let(:configuration) do
+    { 'default_agent_name' => nil }
+  end
 
   it 'does not detect without dynatrace-n/a service' do
     expect(component.detect).to be_nil
@@ -45,23 +49,33 @@ describe JavaBuildpack::Framework::DynaTraceAgent do
 
     it 'updates JAVA_OPTS' do
       component.release
-      expect(java_opts).to include(
-        '-agentpath:$PWD/.java-buildpack/dyna_trace_agent/agent/lib64/'\
+      expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/dyna_trace_agent/agent/lib64/'\
         'libdtagent.so=name=test-application-name_Monitoring,server=test-host-name')
+    end
+
+    context do
+
+      let(:configuration) { { 'default_agent_name' => 'different-agent-name' } }
+
+      it 'updates JAVA_OPTS with configured agent name' do
+        component.release
+        expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/dyna_trace_agent/agent/lib64/'\
+        'libdtagent.so=name=different-agent-name,server=test-host-name')
+      end
+
     end
   end
 
   context do
     before do
       allow(services).to receive(:one_service?).with(/dynatrace/, 'server').and_return(true)
-      allow(services).to receive(:find_service).and_return('credentials' => { 'server' => 'test-host-name',
+      allow(services).to receive(:find_service).and_return('credentials' => { 'server'  => 'test-host-name',
                                                                               'profile' => 'test-profile' })
     end
 
     it 'updates JAVA_OPTS with custom profile' do
       component.release
-      expect(java_opts).to include(
-        '-agentpath:$PWD/.java-buildpack/dyna_trace_agent/agent/lib64/'\
+      expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/dyna_trace_agent/agent/lib64/'\
         'libdtagent.so=name=test-application-name_test-profile,server=test-host-name')
     end
 

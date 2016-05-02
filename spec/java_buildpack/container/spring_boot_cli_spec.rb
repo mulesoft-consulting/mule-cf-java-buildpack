@@ -1,6 +1,6 @@
 # Encoding: utf-8
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2015 the original author or authors.
+# Copyright 2013-2016 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -93,8 +93,8 @@ describe JavaBuildpack::Container::SpringBootCLI do
   it 'returns command',
      app_fixture: 'container_spring_boot_cli_valid_app' do
 
-    expect(component.release).to eq("#{env_vars_str} #{java_home.as_env_var} " \
-                                    "JAVA_OPTS=#{java_opts_str} $PWD/.java-buildpack/spring_boot_cli/bin/spring run " \
+    expect(component.release).to eq("#{env_vars_str} #{java_home.as_env_var} JAVA_OPTS=#{java_opts_str} " \
+                                    'exec $PWD/.java-buildpack/spring_boot_cli/bin/spring run ' \
                                     '-cp $PWD/.additional_libs/test-jar-1.jar:$PWD/.additional_libs/test-jar-2.jar ' \
                                     'directory/pogo_4.groovy invalid.groovy pogo_1.groovy pogo_2.groovy pogo_3.groovy')
   end

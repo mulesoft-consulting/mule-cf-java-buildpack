@@ -9,15 +9,15 @@ AllCops:
     - 'build/**/*'
     - 'vendor/**/*'
 Metrics/AbcSize:
- Max: 18
+ Max: 22
 Metrics/ClassLength:
-  Max: 200
+  Max: 250
 Metrics/CyclomaticComplexity:
   Max: 10
 Metrics/LineLength:
   Max: 120
 Metrics/MethodLength:
-  Max: 17
+  Max: 18
 Metrics/ParameterLists:
   Max: 6
 Metrics/PerceivedComplexity:
